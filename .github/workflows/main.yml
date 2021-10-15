@@ -3,7 +3,7 @@ name: XML Transformer CI
 on: [push]
 
 jobs:
-  jvm-clj:
+  tests:
 
     runs-on: ubuntu-latest
     
