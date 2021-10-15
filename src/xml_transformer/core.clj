@@ -21,23 +21,36 @@
   [zipped-xml field-map]
   (let [as-map (->>
                 (for [[field selector] field-map]
-                  (let [many?    (-> selector meta :many)
-                        value-fn (-> selector meta :value-fn)
-                        node-fn  (-> selector meta :node-fn)
-                        f        (if many? zip-xml/xml-> zip-xml/xml1->)
-                        value    (apply f zipped-xml (conj selector zip-xml/text))
-                        node     (apply f zipped-xml selector)
-
+                  (let [many?         (-> selector meta :many)
+                        value-fn      (-> selector meta :value-fn)
+                        node-fn       (-> selector meta :node-fn)
+                        nested-fields (-> selector meta :fields)
+                        f             (if many? zip-xml/xml-> zip-xml/xml1->)
+                        #_#_value     (apply f zipped-xml (conj selector zip-xml/text))
+                        node          (apply f zipped-xml selector)
+                        get-value     (fn [node] (when node
+                                                   (if many?
+                                                     (map zip-xml/text node)
+                                                     (zip-xml/text node))))
+                        value         (get-value node)
                         value
-                        (if (and value (or value-fn node-fn))
-                          (if value-fn
+                        (if (and value (or value-fn node-fn nested-fields))
+                          (cond
+                            value-fn
                             (if (coll? value)
                               (mapv value-fn value)
                               (value-fn value))
-                            ;; coerce-node? is true
+
+                            node-fn
                             (if many?
                               (mapv node-fn node)
-                              (node-fn node)))
+                              (node-fn node))
+
+                            nested-fields
+                            (if many?
+                              (mapv #(transform-xml % nested-fields) node)
+                              (transform-xml node nested-fields)))
+
                           value)]
                     [field value]))
                 (into {}))

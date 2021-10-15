@@ -46,6 +46,15 @@
    :line/number ^{:value-fn #(Integer/parseInt %)}
    [:lineattr2]})
 
+(def fields3-nested
+  {:header/attr1 [:head :attr1]
+   :header/attr2 [:head :attr2]
+   :header/attr3 ^{:value-fn #(Integer/parseInt %)}
+   [:head :attr3]
+   :lines ^{:many true :fields line-fields}
+   [:lines :line]})
+
+
 (deftest flat-transform
   (testing "Transformation of flat xml"
     (is (= {:header/attr1 "value1", :header/attr2 "value2"}
@@ -59,4 +68,11 @@
             :header/attr3 42,
             :lines        [#:line{:attr1 "line1 value1"}
                            #:line{:attr1 "line2 value1" :number 123}]}
-           (transform-xml (parse-str nested-xml) fields3)))))
+           (transform-xml (parse-str nested-xml) fields3))))
+  (testing "Transformation of nested xml with nested fields"
+    (is (= {:header/attr1 "value1",
+            :header/attr2 "value2",
+            :header/attr3 42,
+            :lines        [#:line{:attr1 "line1 value1"}
+                           #:line{:attr1 "line2 value1" :number 123}]}
+           (transform-xml (parse-str nested-xml) fields3-nested)))))
