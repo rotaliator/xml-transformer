@@ -21,23 +21,23 @@
   [zipped-xml field-map]
   (let [as-map (->>
                 (for [[field selector] field-map]
-                  (let [many?          (-> selector meta :many)
-                        coerce-fn      (-> selector meta :coerce)
-                        coerce-node-fn (-> selector meta :coerce-node)
-                        f              (if many? zip-xml/xml-> zip-xml/xml1->)
-                        value          (apply f zipped-xml (conj selector zip-xml/text))
-                        node           (apply f zipped-xml selector)
+                  (let [many?    (-> selector meta :many)
+                        value-fn (-> selector meta :value-fn)
+                        node-fn  (-> selector meta :node-fn)
+                        f        (if many? zip-xml/xml-> zip-xml/xml1->)
+                        value    (apply f zipped-xml (conj selector zip-xml/text))
+                        node     (apply f zipped-xml selector)
 
                         value
-                        (if (and value (or coerce-fn coerce-node-fn))
-                          (if coerce-fn
+                        (if (and value (or value-fn node-fn))
+                          (if value-fn
                             (if (coll? value)
-                              (mapv coerce-fn value)
-                              (coerce-fn value))
+                              (mapv value-fn value)
+                              (value-fn value))
                             ;; coerce-node? is true
                             (if many?
-                              (mapv coerce-node-fn node)
-                              (coerce-node-fn node)))
+                              (mapv node-fn node)
+                              (node-fn node)))
                           value)]
                     [field value]))
                 (into {}))

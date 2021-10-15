@@ -27,7 +27,7 @@
    :header/attr2 [:head :attr2]})
 
 (def fields2
-  {:header/attr3 ^{:coerce #(Integer/parseInt %)}
+  {:header/attr3 ^{:value-fn #(Integer/parseInt %)}
    [:head :attr3]})
 
 (declare line-fields)
@@ -35,15 +35,15 @@
 (def fields3
   {:header/attr1 [:head :attr1]
    :header/attr2 [:head :attr2]
-   :header/attr3 ^{:coerce #(Integer/parseInt %)}
+   :header/attr3 ^{:value-fn #(Integer/parseInt %)}
    [:head :attr3]
-   :lines ^{:many true :coerce-node #(transform-xml % line-fields)}
+   :lines ^{:many true :node-fn #(transform-xml % line-fields)}
    [:lines :line]})
 
 (def line-fields
   {:line/attr1
    [:lineattr1]
-   :line/number ^{:coerce #(Integer/parseInt %)}
+   :line/number ^{:value-fn #(Integer/parseInt %)}
    [:lineattr2]})
 
 (deftest flat-transform
