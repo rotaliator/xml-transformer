@@ -25,14 +25,15 @@
                         value-fn      (-> selector meta :value-fn)
                         node-fn       (-> selector meta :node-fn)
                         nested-fields (-> selector meta :fields)
-                        f             (if many? zip-xml/xml-> zip-xml/xml1->)
-                        #_#_value     (apply f zipped-xml (conj selector zip-xml/text))
-                        node          (apply f zipped-xml selector)
-                        get-value     (fn [node] (when node
-                                                   (if many?
-                                                     (map zip-xml/text node)
-                                                     (zip-xml/text node))))
-                        value         (get-value node)
+
+                        f         (if many? zip-xml/xml-> zip-xml/xml1->)
+                        get-value (fn [node]
+                                    (when node
+                                      (if many?
+                                        (map zip-xml/text node)
+                                        (zip-xml/text node))))
+                        node      (apply f zipped-xml selector)
+                        value     (get-value node)
                         value
                         (if (and value (or value-fn node-fn nested-fields))
                           (cond
