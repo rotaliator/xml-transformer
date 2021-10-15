@@ -20,17 +20,23 @@
 <line><lineattr1>line1 value1</lineattr1></line>
 <line><lineattr1>line2 value1</lineattr1><lineattr2>123</lineattr2></line>
 </lines>
+<not-used></not-used>
 </head>")
 
 (def fields1
   {:header/attr1 [:head :attr1]
-   :header/attr2 [:head :attr2]})
+   :header/attr2 [:head :attr2]
+   :header/not-present-in-source [:head :not-there]})
 
 (def fields2
   {:header/attr3 ^{:value-fn #(Integer/parseInt %)}
    [:head :attr3]})
 
-(declare line-fields)
+(def line-fields
+  {:line/attr1
+   [:lineattr1]
+   :line/number ^{:value-fn #(Integer/parseInt %)}
+   [:lineattr2]})
 
 (def fields3
   {:header/attr1 [:head :attr1]
@@ -40,17 +46,14 @@
    :lines ^{:many true :node-fn #(transform-xml % line-fields)}
    [:lines :line]})
 
-(def line-fields
-  {:line/attr1
-   [:lineattr1]
-   :line/number ^{:value-fn #(Integer/parseInt %)}
-   [:lineattr2]})
 
-(def fields3-nested
+(def fields3-nested-fields
   {:header/attr1 [:head :attr1]
    :header/attr2 [:head :attr2]
+
    :header/attr3 ^{:value-fn #(Integer/parseInt %)}
    [:head :attr3]
+
    :lines ^{:many true :fields line-fields}
    [:lines :line]})
 
@@ -61,7 +64,9 @@
            (transform-xml (parse-str flat-xml) fields1))))
   (testing "Transformation of flat xml with coercion"
     (is (= {:header/attr3 42}
-           (transform-xml (parse-str flat-xml) fields2))))
+           (transform-xml (parse-str flat-xml) fields2)))))
+
+(deftest nested-transform
   (testing "Transformation of nested xml with node coercion"
     (is (= {:header/attr1 "value1",
             :header/attr2 "value2",
@@ -75,4 +80,4 @@
             :header/attr3 42,
             :lines        [#:line{:attr1 "line1 value1"}
                            #:line{:attr1 "line2 value1" :number 123}]}
-           (transform-xml (parse-str nested-xml) fields3-nested)))))
+           (transform-xml (parse-str nested-xml) fields3-nested-fields)))))
