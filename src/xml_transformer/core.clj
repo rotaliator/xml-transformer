@@ -18,12 +18,18 @@
 (defn- add-key-of-reduced-attrs
   "Returns map m with added key k of value calculated by reduction
   using rf over attrs (keys of map m)"
-  [m k rf attrs]
-  (let [new-value
-        (->>  attrs
-              (map #(get m %))
-              (reduce rf))]
-    (assoc m k new-value)))
+  ([m k rf attrs]
+   (let [new-value
+         (->>  attrs
+               (map #(get m %))
+               (reduce rf))]
+     (assoc m k new-value)))
+  ([m k rf init attrs]
+   (let [new-value
+         (->>  attrs
+               (map #(get m %))
+               (reduce rf init))]
+     (assoc m k new-value))))
 
 (defn transform-xml
   "Transforms zipped-xml into map using field-map"
@@ -67,6 +73,8 @@
                        [field value]))
                 (into {}))
         as-map (reduce (fn [acc [k attrs]]
-                         (add-key-of-reduced-attrs acc k (-> attrs meta :reduce-fn) attrs)) as-map to-reduce)
+                         (if-let [reduce-init (-> attrs meta :reduce-init)]
+                           (add-key-of-reduced-attrs acc k (-> attrs meta :reduce-fn) reduce-init attrs)
+                           (add-key-of-reduced-attrs acc k (-> attrs meta :reduce-fn) attrs))) as-map to-reduce)
         as-map (remove-nils as-map)]
     as-map))

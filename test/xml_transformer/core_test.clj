@@ -99,6 +99,25 @@
                       :attr2       "value2",
                       :attr1+attr2 ["value1" "value2"]}
              transformed))))
+  (testing "Vector of 3 attributes"
+    (let [xml-str     "<?xml version=\"1.0\" encoding=\"UTF-8\"?>
+<head>
+<attr1>value1</attr1>
+<attr2>value2</attr2>
+<attr3>value3</attr3>
+</head>"
+          zipped-xml  (parse-str xml-str)
+          fields      {:header/attr1             [:head :attr1]
+                       :header/attr2             [:head :attr2]
+                       :header/attr3             [:head :attr3]
+                       :header/attr1+attr2+attr3 ^{:reduce-fn conj :reduce-init []}
+                       [:header/attr1 :header/attr2 :header/attr3]}
+          transformed (transform-xml zipped-xml fields)]
+      (is (= #:header{:attr1       "value1",
+                      :attr2       "value2",
+                      :attr3       "value3",
+                      :attr1+attr2+attr3 ["value1" "value2" "value3"]}
+             transformed))))
 
   (testing "Sum of attributes"
     (let [xml-str "<?xml version=\"1.0\" encoding=\"UTF-8\"?>
