@@ -1,5 +1,6 @@
 {:paths ["src"]
- :deps  {org.clojure/data.zip {:mvn/version "1.0.0"}}
+ :deps  {org.clojure/data.zip {:mvn/version "1.0.0"}
+         org.clojure/data.xml {:mvn/version "0.2.0-alpha6"}}
 
  :aliases {:test {:extra-paths ["test"]
                   :extra-deps  {io.github.cognitect-labs/test-runner

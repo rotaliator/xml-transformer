@@ -1,5 +1,5 @@
 (ns xml-transformer.core
-  (:require [clojure.xml :as xml]
+  (:require [clojure.data.xml :as xml]
             [clojure.data.zip.xml :as zip-xml]
             [clojure.zip :as zip]))
 
@@ -8,8 +8,8 @@
 (defn parse-str
   "Parses string to tree of the xml/element struct-map zipped with xml-zip"
   [s]
-  (-> (xml/parse (new org.xml.sax.InputSource
-                      (new java.io.StringReader s)))
+  (-> s
+      xml/parse-str
       zip/xml-zip))
 
 (defn remove-nils [m]
